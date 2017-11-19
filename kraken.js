@@ -1,6 +1,9 @@
 var request		= require('request');
 var crypto		= require('crypto');
 var querystring	= require('querystring');
+var colors = require('colors');
+
+
 
 /**
  * KrakenClient connects to the Kraken.com API
@@ -10,6 +13,8 @@ var querystring	= require('querystring');
  */
 function KrakenClient(key, secret, otp) {
 	var self = this;
+	var debugReq = true;
+
 
 	var config = {
 		url: 'https://api.kraken.com',
@@ -17,7 +22,7 @@ function KrakenClient(key, secret, otp) {
 		key: key,
 		secret: secret,
 		otp: otp,
-		timeoutMS: 5000
+		timeoutMS: 60000 // 5000
 	};
 
 	/**
@@ -116,6 +121,11 @@ function KrakenClient(key, secret, otp) {
 	 * @return {Object}            The request object
 	 */
 	function rawRequest(url, headers, params, callback) {
+		if(debugReq) {
+			var now = (new Date).getTime();
+			console.log(("\nrawRequest " + url + " " + new Date().toISOString()).blue);
+		}
+
 		// Set custom User-Agent string
 		headers['User-Agent'] = 'Kraken Javascript API Client';
 
@@ -128,6 +138,10 @@ function KrakenClient(key, secret, otp) {
 		};
 
 		var req = request.post(options, function(error, response, body) {
+			if(debugReq) {
+				console.log(("\nrawRequest " + url + " took: " + ((new Date).getTime() - now)).blue);
+			}
+
 			if(typeof callback === 'function') {
 				var data;
 
